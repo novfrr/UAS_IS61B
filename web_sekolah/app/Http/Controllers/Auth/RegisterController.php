@@ -10,62 +10,71 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
-    use RegistersUsers;
-
     /**
-     * Where to redirect users after registration.
+     * Menampilkan form pendaftaran.
      *
-     * @var string
+     * @return \Illuminate\View\View
      */
-    protected $redirectTo = '/home';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function showRegistrationForm()
     {
-        $this->middleware('guest');
+        return view('auth.register');
     }
 
     /**
-     * Get a validator for an incoming registration request.
+     * Menangani permintaan pendaftaran.
      *
-     * @param  array  $data
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        $this->create($request->all());
+
+        return redirect()->route('home')->with('status', 'Pendaftaran berhasil!');
+    }
+
+    /**
+     * Mendapatkan validator untuk permintaan pendaftaran.
+     *
+     * @param array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'nis' => ['required', 'string', 'max:255', 'unique:pendaftarans'],
+            'nama' => ['required', 'string', 'max:255'],
+            'jk' => ['required', 'string', 'max:1'],
+            'agama' => ['required', 'string', 'max:255'],
+            'tempat' => ['required', 'string', 'max:255'],
+            'tgl' => ['required', 'date'],
+            'alamat' => ['required', 'string', 'max:255'],
+            'nm_ibu' => ['required', 'string', 'max:255'],
+            'nm_ayah' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
 
     /**
-     * Create a new user instance after a valid registration.
+     * Membuat instance pengguna baru setelah pendaftaran valid.
      *
-     * @param  array  $data
-     * @return \App\Models\User
+     * @param array $data
+     * @return \App\Models\Pendaftaran
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
+        return Pendaftaran::create([
+            'nis' => $data['nis'],
+            'nama' => $data['nama'],
+            'jk' => $data['jk'],
+            'agama' => $data['agama'],
+            'tempat' => $data['tempat'],
+            'tgl' => $data['tgl'],
+            'alamat' => $data['alamat'],
+            'nm_ibu' => $data['nm_ibu'],
+            'nm_ayah' => $data['nm_ayah'],
             'password' => Hash::make($data['password']),
         ]);
     }
